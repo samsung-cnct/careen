@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/davidewatson/careen/cmd"
+	"github.com/samsung-cnct/careen/cmd"
 	"os"
 )
 

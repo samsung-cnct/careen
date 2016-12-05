@@ -7,7 +7,7 @@ Careen is also verb meaning to "turn (a ship) on its side for cleaning, caulking
 ## Usage
 
 ```
-git clone https://github.com/davidewatson/careen.git
+git clone https://github.com/samsung-cnct/careen.git
 cd careen
 go build
 ./careen help
