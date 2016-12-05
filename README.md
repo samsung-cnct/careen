@@ -7,15 +7,15 @@ Careen is also verb meaning to "turn (a ship) on its side for cleaning, caulking
 ## Usage
 
 ```
-git clone <careen-repo>
+git clone https://github.com/samsung-cnct/careen.git
 cd careen
-make
+go build
 ./careen help
-./careen clone configs/docker.yaml
-./careen apply configs/docker.yaml
+./careen clone -c manifests/docker.yaml
+./careen apply -c manifests/docker.yaml
 ```
 
-Building instructions are contained in each individual project. For an example see the Jenkins job here https://github.com/samsung-cnct/kraken-ci-jobs WIP
+Build instructions vary by package and are expected to be codified by a CI system. For examples, see here https://github.com/samsung-cnct/kraken-ci-jobs (not yet implemented).
 
 ## Repository Patch Set Specification
 
@@ -31,7 +31,8 @@ Building instructions are contained in each individual project. For an example s
 | --- | --- | --- | --- |
 | name | __Required__ | String | Name of package |
 | repo | __Required__ | String | URL of the repository |
-| revision | __Required__ | String | Commit hash from the repository |
+| revision | __Recommended__ | String | Commit hash from the repository |
+| tag | __Required__ | String | Tag in repository |
 | patches | __Optional__ | Object Array | Array of patch |
 
 ### patch options
@@ -49,7 +50,8 @@ version: 0.0.1
 packages:
   - name: docker
     repo: "https://github.com/docker/docker.git"
-    revision: "fb99f992c081a1d433c97c99ffb46d12693eeb76"
+    revision: "b9f10c951893f9a00865890a5232e85d770c1087"
+    tag: "v1.11.2"
     patches:
       - name: "Add support for setting sysctls"
         filename: docker-19265.patch

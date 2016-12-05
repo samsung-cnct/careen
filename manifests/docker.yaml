@@ -1,0 +1,12 @@
+version: 0.0.1
+packages:
+  - name: docker
+    repo: "https://github.com/docker/docker.git"
+    revision: "b9f10c951893f9a00865890a5232e85d770c1087"
+    tag: "v1.11.2"
+    patches:
+      - name: "Add support for setting sysctls"
+        filename: docker-19265.patch
+        hash: "71705e0fa7d5dc0d9495ce692e7c9b95a8ddf9ff"
+        documentation:
+          - "https://github.com/docker/docker/pull/19265"
