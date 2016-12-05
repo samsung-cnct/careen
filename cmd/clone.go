@@ -21,7 +21,7 @@ import (
 )
 
 func Clone(repoUrl string, revision string, destDir string) error {
-	err := gitClone(repoUrl, revision, destDir)
+	err := GitClone(repoUrl, revision, destDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 		return fmt.Errorf("Failed to clone repo %v to destination %v", repoUrl, destDir)
@@ -31,13 +31,13 @@ func Clone(repoUrl string, revision string, destDir string) error {
 }
 
 func CheckoutByTag(repoDir string, tag string) error {
-	repo, err := gitOpenRepository(repoDir)
+	repo, err := GitOpenRepository(repoDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 		return fmt.Errorf("Failed to open repo at %v", repoDir)
 	}
 
-	err = gitCheckoutByTag(repo, tag)
+	err = GitCheckoutByTag(repo, tag)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 		return fmt.Errorf("Failed to check out tag %v from repo %v", tag, repoDir)

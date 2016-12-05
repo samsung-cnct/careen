@@ -24,16 +24,15 @@ import (
 	"os"
 )
 
-func gitClone(repoUrl string, revision string, destDir string) error {
+func GitClone(repoUrl string, revision string, destDir string) error {
 	_, err := git.Clone(repoUrl, destDir, &git.CloneOptions{})
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func gitOpenRepository(repoPath string) (*git.Repository, error) {
+func GitOpenRepository(repoPath string) (*git.Repository, error) {
 	repo, err := git.OpenRepository(repoPath)
 	if err != nil {
 		return nil, err
@@ -41,7 +40,7 @@ func gitOpenRepository(repoPath string) (*git.Repository, error) {
 	return repo, err
 }
 
-func gitCheckoutByTag(repo *git.Repository, tag string) error {
+func GitCheckoutByTag(repo *git.Repository, tag string) error {
 	/* Note DwimReference() was renamed Dwim() and moved from repository.go
 	   to references.go. This can lead to some confusion if you read the
 	   docs and not the code. Beware.
