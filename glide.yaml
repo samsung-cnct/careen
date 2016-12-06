@@ -1,0 +1,13 @@
+package: .
+import:
+- package: github.com/briandowns/spinner
+- package: github.com/go-yaml/yaml
+- package: github.com/libgit2/git2go
+- package: github.com/samsung-cnct/careen
+  subpackages:
+  - cmd
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: golang.org/x/crypto
+  subpackages:
+  - ssh/terminal
