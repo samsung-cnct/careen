@@ -1,0 +1,5 @@
+manifest: ./manifests/docker.yaml
+output:
+  directory: ./src/
+patches:
+  directory: ./patches/
