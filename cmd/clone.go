@@ -48,7 +48,7 @@ func CheckoutByTag(repoDir string, tag string) error {
 
 // cloneCmd represents the clone command
 var cloneCmd = &cobra.Command{
-	Use:          "clone [manifest filename] (default ) " + careenConfig.GetString("manifest"),
+	Use:          "clone [config filename] (default ) " + careenConfig.GetString("config"),
 	Short:        "Clones repositories",
 	SilenceUsage: true,
 	Long:         `Clones repositories at a specific commit specified by configuration.`,
