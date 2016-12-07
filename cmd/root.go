@@ -22,6 +22,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -43,6 +44,7 @@ var RootCmd = &cobra.Command{
 	Short: "CLI for patching github repos",
 	Long:  `careen is a command line interface for cloning and patching a set of github repos`,
 	PreRun: func(cmd *cobra.Command, args []string) {
+		outputDirectory := careenConfig.GetString("output.directory")
 		if _, err := os.Stat(outputDirectory); os.IsNotExist(err) {
 			os.Mkdir(outputDirectory, 0755)
 		}
@@ -63,68 +65,70 @@ func init() {
 
 	RootCmd.SetHelpCommand(helpCmd)
 
-	workingDir, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defaultConfigFilename := "$HOME/.carren.yaml"
-	defaultManifestFilename := workingDir + "/manifests/docker.yaml"
-	defaultOutputDirectory := workingDir + "/src/"
-	defaultPatchDirectory := workingDir + "/patches/"
-
 	RootCmd.PersistentFlags().StringVarP(
 		&configFilename,
 		"config",
 		"c",
-		defaultConfigFilename,
-		"config file (default \""+defaultConfigFilename+"\"")
+		"",
+		"config file")
 	RootCmd.PersistentFlags().StringVarP(
 		&manifestFilename,
 		"manifest",
 		"m",
-		defaultManifestFilename,
+		"",
 		"manifest filename")
 	RootCmd.PersistentFlags().StringVarP(
 		&outputDirectory,
 		"output",
 		"o",
-		defaultOutputDirectory,
+		"",
 		"output directory")
 	RootCmd.PersistentFlags().StringVarP(
 		&patchDirectory,
 		"patches",
 		"p",
-		defaultPatchDirectory,
+		"",
 		"patch directory")
 
 	configureSpinner(terminalSpinner)
 
 }
 
-// initCareenConfig uses flags (with defaults set by init), ENV variables and finally configuration files
+// Initializes careenConfig to use flags, ENV variables and finally configuration files (in that order).
 func initCareenConfig() {
+	careenConfig.BindPFlag("config", RootCmd.Flags().Lookup("config"))
 	careenConfig.BindPFlag("manifest", RootCmd.Flags().Lookup("manifest"))
-	careenConfig.BindPFlag("output", RootCmd.Flags().Lookup("output"))
-	careenConfig.BindPFlag("patches", RootCmd.Flags().Lookup("patches"))
+	careenConfig.BindPFlag("output.directory", RootCmd.Flags().Lookup("output"))
+	careenConfig.BindPFlag("patches.directory", RootCmd.Flags().Lookup("patches"))
 
-	careenConfig.SetEnvPrefix("CAREEN_")
-	careenConfig.AutomaticEnv()
+	careenConfig.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	careenConfig.SetEnvPrefix("CAREEN") // prefix for env vars to configure cluster
+	careenConfig.AutomaticEnv()         // read in environment variables that match
 
+	careenConfig.SetConfigName("config")         // name of config file (without extension)
+	careenConfig.AddConfigPath("$HOME/.careen/") // path to look for the config file in
+	careenConfig.AddConfigPath(".")              // optionally look for config in the working directory
+
+	configFilename := careenConfig.GetString("config")
 	if configFilename != "" { // enable ability to specify config file via flag
-		careenConfig.SetConfigName("careen")         // name of config file (without extension)
-		careenConfig.AddConfigPath("$HOME/.careen/") // path to look for the config file in
-		careenConfig.AddConfigPath(".")              // optionally look for config in the working directory
-	} else {
-		// Warn the user if they explicitly requested a config file which does not exist
-		if _, err := os.Stat(configFilename); os.IsNotExist(err) {
-			fmt.Printf("WARNING: Specified config file %v does not exist, using defaults", configFilename)
-		} else {
-			careenConfig.SetConfigFile(configFilename)
-		}
+		careenConfig.SetConfigFile(configFilename)
 	}
-	// Ignore errors. All configuration parameters have defaults.
-	careenConfig.ReadInConfig()
+
+	// If a config file is found, read it in.
+	if err := careenConfig.ReadInConfig(); err == nil {
+		fmt.Println("INFO: Using careen config file:", careenConfig.ConfigFileUsed())
+	}
+
+	// Set defaults
+	workingDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	// No default for config
+	careenConfig.SetDefault("manifest", workingDir+"/manifests/docker.yaml")
+	careenConfig.SetDefault("output.directory", workingDir+"/src/")
+	careenConfig.SetDefault("patches.directory", workingDir+"/patches/")
 }
 
 func configureSpinner(s *spinner.Spinner) {
