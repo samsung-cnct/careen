@@ -33,6 +33,4 @@ Simply type ` + RootCmd.Name() + ` help [path to command] for full details.`,
 
 func init() {
 	RootCmd.AddCommand(helpCmd)
-
-	// Here you will define your flags and configuration settings.
 }

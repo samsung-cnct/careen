@@ -43,6 +43,4 @@ which was used to compile careen`,
 
 func init() {
 	RootCmd.AddCommand(versionCmd)
-
-	// Here you will define your flags and configuration settings.
 }
