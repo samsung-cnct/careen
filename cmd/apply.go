@@ -84,8 +84,9 @@ func Apply(repoDir string, patchPath string) (err error) {
 	fmt.Printf("INFO: Running command \"%v %v\"\n", cmdName, strings.Join(cmdArgs, " "))
 	err = cmd.Run()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, stderr.String())
 		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Stdout:\n %v", stdout.String())
+		fmt.Fprintf(os.Stderr, "Stderr:\n %v", stderr.String())
 		return fmt.Errorf("There was an error running \"git apply\" command")
 	}
 	fmt.Println("INFO: Command completed successfully\n")
