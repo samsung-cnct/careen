@@ -17,14 +17,33 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"io"
 	"os"
 )
 
+func IsEmpty(name string) (bool, error) {
+	f, err := os.Open(name)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err
+}
+
 func Clone(repoUrl string, revision string, destDir string) error {
+	terminalSpinner.Start()
+	defer func() {
+		terminalSpinner.Stop()
+	}()
+
 	err := GitClone(repoUrl, revision, destDir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		return fmt.Errorf("Failed to clone repo %v to destination %v", repoUrl, destDir)
+		return err
 	}
 
 	return nil
@@ -33,14 +52,12 @@ func Clone(repoUrl string, revision string, destDir string) error {
 func CheckoutByTag(repoDir string, tag string) error {
 	repo, err := GitOpenRepository(repoDir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		return fmt.Errorf("Failed to open repo at %v", repoDir)
+		return err
 	}
 
 	err = GitCheckoutByTag(repo, tag)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		return fmt.Errorf("Failed to check out tag %v from repo %v", tag, repoDir)
+		return err
 	}
 
 	return nil
@@ -53,17 +70,10 @@ var cloneCmd = &cobra.Command{
 	SilenceUsage: true,
 	Long:         `Clones repositories at a specific commit specified by configuration.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var (
-			manifestFilename string
-			manifest         *Manifest
-			outputDir        string
-			err              error
-		)
-
 		manifestFilename = careenConfig.GetString("manifest")
 		fmt.Printf("INFO: Cloning packages from manifest %v\n", manifestFilename)
 
-		manifest, err = GetManifestFromFile(manifestFilename)
+		manifest, err := GetManifestFromFile(manifestFilename)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 			ExitCode = 1
@@ -74,21 +84,29 @@ var cloneCmd = &cobra.Command{
 
 		for _, pkg := range manifest.Packages {
 			repoDir := outputDir + pkg.Name
-			fmt.Printf("INFO: Cloning package %v from %v to %v\n", pkg.Name, pkg.Repo, repoDir)
-			terminalSpinner.Start()
-			err = Clone(pkg.Repo, pkg.Revision, repoDir)
+			fmt.Printf("INFO: Checking if repository directory %v is empty\n", repoDir)
+			empty, err := IsEmpty()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+				ExitCode = 1
+				return
+			} else if empty {
+				fmt.Printf("INFO: Attempting to clone repository %v to directory %v\n", pkg.Repo, repoDir)
+				err = Clone(pkg.Repo, pkg.Revision, repoDir)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
+					ExitCode = 1
+					return
+				}
+			}
+			fmt.Printf("INFO: Attempting to checkout tag %v from repository directory %v\n", pkg.Tag, repoDir)
+			err = CheckoutByTag(repoDir, pkg.Tag)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 				ExitCode = 1
 				return
 			}
-			CheckoutByTag(repoDir, pkg.Tag)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-				ExitCode = 1
-				return
-			}
-			terminalSpinner.Stop()
+			fmt.Printf("INFO: Checked out tag %v from repository directory %v\n", pkg.Tag, repoDir)
 		}
 
 		ExitCode = 0

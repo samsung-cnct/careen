@@ -19,9 +19,7 @@ package cmd
 */
 
 import (
-	"fmt"
 	"github.com/libgit2/git2go"
-	"os"
 )
 
 func GitClone(repoUrl string, revision string, destDir string) error {
@@ -47,13 +45,11 @@ func GitCheckoutByTag(repo *git.Repository, tag string) error {
 	*/
 	ref, err := repo.References.Dwim(tag)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		return fmt.Errorf("Failed to find ref for tag %v", tag)
+		return err
 	}
 
 	if err := repo.SetHeadDetached(ref.Target()); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		return fmt.Errorf("Failed to checkout tag %v", tag)
+		return err
 	}
 
 	return nil
