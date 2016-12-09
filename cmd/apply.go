@@ -28,6 +28,8 @@ import (
 	"time"
 )
 
+const maxApplyTimeout = 10 // Seconds
+
 // Computes the hash of file named patchPath and compares it with the expected hash
 func VerifyPatch(patch string, expectedHash string) (valid bool, err error) {
 	fileData, err := ioutil.ReadFile(patch)
@@ -111,7 +113,7 @@ func Apply(repoDir string, patchPath string) (err error) {
 
 	cmdName := "git"
 	cmdArgs := []string{"apply", absPatchPath}
-	cmdTimeout := time.Duration(10) * time.Second
+	cmdTimeout := time.Duration(maxApplyTimeout) * time.Second
 	err = RunCommand(cmdName, cmdArgs, cmdTimeout)
 	if err != nil {
 		return err
