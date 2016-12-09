@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"bytes"
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
@@ -26,6 +25,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 // Computes the hash of file named patchPath and compares it with the expected hash
@@ -46,12 +46,45 @@ func VerifyPatch(patch string, expectedHash string) (valid bool, err error) {
 	return true, nil
 }
 
-func Apply(repoDir string, patchPath string) (err error) {
-	var (
-		stdout bytes.Buffer
-		stderr bytes.Buffer
-	)
+// Run command with args and kill if timeout is reached
+func RunCommand(name string, args []string, timeout time.Duration) error {
+	fmt.Printf("Running command \"%v %v\"\n", name, strings.Join(args, " "))
+	cmd := exec.Command(name, args...)
 
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+	case <-time.After(timeout):
+		fmt.Fprintf(os.Stderr, "Command %v timed out\n", name)
+		if err := cmd.Process.Kill(); err != nil {
+			panic(fmt.Sprintf("Failed to kill command %v, err %v", name, err))
+		}
+	case err := <-done:
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Command %v returned err %v\n", name, err)
+			output, e := cmd.CombinedOutput()
+			if e != nil {
+				return e
+			}
+			fmt.Fprintf(os.Stderr, "%v", output)
+			return err
+		}
+	}
+	fmt.Printf("Command %v completed successfully\n", name)
+
+	return nil
+}
+
+// Apply patch to repo in repoDir
+func Apply(repoDir string, patchPath string) (err error) {
 	absRepoDir, err := filepath.Abs(repoDir)
 	if err != nil {
 		return err
@@ -78,18 +111,11 @@ func Apply(repoDir string, patchPath string) (err error) {
 
 	cmdName := "git"
 	cmdArgs := []string{"apply", absPatchPath}
-	cmd := exec.Command(cmdName, cmdArgs...)
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	fmt.Printf("INFO: Running command \"%v %v\"\n", cmdName, strings.Join(cmdArgs, " "))
-	err = cmd.Run()
+	cmdTimeout := time.Duration(10) * time.Second
+	err = RunCommand(cmdName, cmdArgs, cmdTimeout)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		fmt.Fprintf(os.Stderr, "Stdout:\n %v", stdout.String())
-		fmt.Fprintf(os.Stderr, "Stderr:\n %v", stderr.String())
-		return fmt.Errorf("There was an error running \"git apply\" command")
+		return err
 	}
-	fmt.Println("INFO: Command completed successfully\n")
 
 	return nil
 }
