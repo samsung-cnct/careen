@@ -65,10 +65,10 @@ func RunCommand(name string, args []string, timeout time.Duration) error {
 
 	select {
 	case <-time.After(timeout):
-		fmt.Fprintf(os.Stderr, "Command %v timed out\n", name)
 		if err := cmd.Process.Kill(); err != nil {
 			panic(fmt.Sprintf("Failed to kill command %v, err %v", name, err))
 		}
+		return fmt.Errorf("Command %v timed out\n", name)
 	case err := <-done:
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Command %v returned err %v\n", name, err)
