@@ -17,16 +17,16 @@
 pwd
 FILESYSTEM_UID=$(stat -c "%u" .)
 FILESYSTEM_GID=$(stat -c "%g" .)
-echo "Filesystem UID:GID is $FILESYSTEM_UID : $FILESYSTEM_GID"
+echo "Filesystem UID:GID is $FILESYSTEM_UID:$FILESYSTEM_GID"
 
 # Allow UID and GID to be over ridden by environment variables
-USERNAME=${LOCAL_USERNAME:-user}
-UID=${LOCAL_UID:-$FILESYSTEM_UID}
-GID=${LOCAL_GID:-$FILESYSTEM_GID}
+CONTAINER_USERNAME=${LOCAL_USERNAME:-user}
+CONTAINER_UID=${LOCAL_UID:-$FILESYSTEM_UID}
+CONTAINER_GID=${LOCAL_GID:-$FILESYSTEM_GID}
 
 # Add user with specified UID and GID
-echo "Adding $USERNAME with UID:GID $UID:$GID"
-useradd --shell /bin/bash -u $UID -o -c "" -m $USERNAME -g $GID
-export HOME=/home/$USERNAME
+echo "Adding user named $CONTAINER_USERNAME with UID:GID $CONTAINER_UID:$CONTAINER_GID"
+useradd --shell /bin/bash -u $CONTAINER_UID -o -c "" -m $CONTAINER_USERNAME -g $CONTAINER_GID
+export HOME=/home/$CONTAINER_USERNAME
 
-exec /usr/local/bin/gosu $USERNAME "$@"
+exec /usr/local/bin/gosu $CONTAINER_USERNAME "$@"
