@@ -45,7 +45,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
                 docker-engine \
         && rm -rf /var/lib/apt/lists/*
 
-
 RUN curl -fsSL "$GLIDE_URL" -o glide.tgz \
         && echo "$GLIDE_SHA256 glide.tgz" | sha256sum -c - \
         && tar xzvf glide.tgz \
