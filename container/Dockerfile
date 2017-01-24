@@ -14,6 +14,8 @@
 
 FROM golang:1.7.4
 
+ENV DEBIAN_RELEASE jessie
+
 ENV GLIDE_VERSION v0.12.3
 ENV GLIDE_URL https://github.com/Masterminds/glide/releases/download/$GLIDE_VERSION/glide-$GLIDE_VERSION-linux-amd64.tar.gz
 ENV GLIDE_SHA256 0e2be5e863464610ebc420443ccfab15cdfdf1c4ab63b5eb25d1216900a75109
@@ -27,11 +29,22 @@ ENV LIBGIT2_VERSION 0.24.3
 ENV LIBGIT2_URL https://github.com/libgit2/libgit2/archive/v$LIBGIT2_VERSION.tar.gz
 ENV LIBGIT2_SHA256 0a24e6a51dbf3beecb0ebcd2cafb1e09b1212e910be6477b5de03c84a5586754
 
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/local
+ENV LD_LIBRARY_PATH /usr/local/lib:$LD_LIBRARY_PATH
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
                 cmake \
+                apt-transport-https \
+                ca-certificates \
+                software-properties-common \
+        && curl -fsSL https://yum.dockerproject.org/gpg | apt-key add - \
+        && add-apt-repository \
+                "deb https://apt.dockerproject.org/repo/ \
+                 debian-$(lsb_release -cs) \
+                 main" \
+        && apt-get update && apt-get install -y --no-install-recommends \
+                docker-engine \
         && rm -rf /var/lib/apt/lists/*
+
 
 RUN curl -fsSL "$GLIDE_URL" -o glide.tgz \
         && echo "$GLIDE_SHA256 glide.tgz" | sha256sum -c - \
