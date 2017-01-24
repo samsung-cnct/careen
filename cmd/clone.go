@@ -80,12 +80,12 @@ var cloneCmd = &cobra.Command{
 			return
 		}
 
-		outputDir = careenConfig.GetString("output.directory")
+		outputDir := careenConfig.GetString("output.directory")
 
 		for _, pkg := range manifest.Packages {
 			repoDir := outputDir + pkg.Name
 			fmt.Printf("INFO: Checking if repository directory %v is empty\n", repoDir)
-			empty, err := IsEmpty()
+			empty, err := IsEmpty(repoDir)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 				ExitCode = 1
