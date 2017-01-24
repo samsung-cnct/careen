@@ -14,8 +14,6 @@
 
 FROM golang:1.7.4
 
-ENV DEBIAN_RELEASE jessie
-
 ENV GLIDE_VERSION v0.12.3
 ENV GLIDE_URL https://github.com/Masterminds/glide/releases/download/$GLIDE_VERSION/glide-$GLIDE_VERSION-linux-amd64.tar.gz
 ENV GLIDE_SHA256 0e2be5e863464610ebc420443ccfab15cdfdf1c4ab63b5eb25d1216900a75109
