@@ -14,7 +14,7 @@
 
 all: push
 
-TAG = 0.0.2
+TAG = 0.0.3
 PREFIX = quay.io/samsung_cnct/goglide-careen
 
 container:
