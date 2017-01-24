@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.7.1
+FROM golang:1.7.4
 
 ENV GLIDE_VERSION v0.12.3
 ENV GLIDE_URL https://github.com/Masterminds/glide/releases/download/$GLIDE_VERSION/glide-$GLIDE_VERSION-linux-amd64.tar.gz
@@ -44,7 +44,7 @@ RUN curl -fsSL "$GOSU_URL" -o "$GOSU_BINARY" \
         && echo "$GOSU_SHA256 $GOSU_BINARY" | sha256sum -c - \
         && chmod +x "$GOSU_BINARY"
 
-RUN curl -fsSL https://github.com/libgit2/libgit2/archive/v0.24.3.tar.gz -o libgit2.tgz \
+RUN curl -fsSL "$LIBGIT2_URL" -o libgit2.tgz \
         && echo "$LIBGIT2_SHA256" libgit2.tgz | sha256sum -c - \
         && tar xfz libgit2.tgz \
         && cd libgit2-$LIBGIT2_VERSION \
