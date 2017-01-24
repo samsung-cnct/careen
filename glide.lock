@@ -1,5 +1,5 @@
 hash: 02e0bf17ed77c51df75977ba4a7d60bef1f1082b9059f820a3a81760901d9471
-updated: 2016-12-06T14:37:28.58539089-08:00
+updated: 2017-01-24T07:49:45.720493669-08:00
 imports:
 - name: github.com/briandowns/spinner
   version: cd65e8bd7da20cdcee450f7cbdd9cc04f78bc02f
@@ -31,7 +31,7 @@ imports:
 - name: github.com/mattn/go-isatty
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
 - name: github.com/mitchellh/mapstructure
-  version: 5a0325d7fafaac12dda6e7fb8bd222ec1b69875e
+  version: 482a9fd5fa83e8c4e7817413b80f3eb8feec03ef
 - name: github.com/pelletier/go-buffruneio
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
@@ -55,7 +55,7 @@ imports:
 - name: github.com/spf13/viper
   version: 651d9d916abc3c3d6a91a12549495caba5edffd2
 - name: golang.org/x/crypto
-  version: 8a549a1948fc5271eb24f36dcb0d3b47dec75a16
+  version: c10c31b5e94b6f7a0283272dc2bb27163dcea24b
   subpackages:
   - ssh/terminal
 - name: golang.org/x/sys
@@ -68,5 +68,5 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/yaml.v2
-  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
+  version: bef53efd0c76e49e6de55ead051f886bea7e9420
 testImports: []
