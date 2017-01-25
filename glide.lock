@@ -36,10 +36,6 @@ imports:
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
   version: ce7be745f09fe4ff89af8e3ea744e1deabf20ee3
-- name: github.com/samsung-cnct/careen
-  version: b42cdd00b006d37cfb1e6fedcef7bcdccb718509
-  subpackages:
-  - cmd
 - name: github.com/spf13/afero
   version: 06b7e5f50606ecd49148a01a6008942d9b669217
   subpackages:
